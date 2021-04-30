@@ -50,11 +50,13 @@ class Item(Resource):
         items.append(item)
         return item, 201 # for creating
     
+    @jwt_required()
     def delete(self, name:str):
         global items
         items = [item for item in items if item['name'] != name]
         return {'message': f'the item with the name {name!r} was deleted'}
-        
+    
+    @jwt_required()
     def put(self, name: str):
         data = Item.parser.parse_args()
         item:dict = next(filter(lambda item: item['name'] == name, items), None)
