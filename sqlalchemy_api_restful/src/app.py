@@ -1,7 +1,6 @@
 from src.security import authenticate, identity
 from src import create_table
-from src.user import UserRegister
-from src.item import Item, ItemList
+from src.resources import UserRegister, Item, ItemList
 from flask import Flask
 from flask_restful import Api
 from flask_jwt import JWT
