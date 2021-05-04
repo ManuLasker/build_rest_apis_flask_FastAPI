@@ -20,12 +20,11 @@ class ItemModel:
         if item:
             return cls(*item)
         
-    @classmethod
-    def insert(cls, item:'ItemModel') -> None:
+    def insert(self) -> None:
         connection = sqlite3.connect('data.db')
         cursor = connection.cursor()
         cursor.execute("INSERT INTO items VALUES (NULL, ?, ?)",
-                       (item.name, item.price))
+                       (self.name, self.price))
         connection.commit()
         connection.close()
         

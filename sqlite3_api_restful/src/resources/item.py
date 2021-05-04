@@ -1,4 +1,3 @@
-import sqlite3
 from typing import Dict
 from flask_restful import Resource, reqparse
 from flask_jwt import jwt_required
@@ -33,7 +32,7 @@ class Item(Resource):
         data = Item.parser.parse_args()
         item = ItemModel(0, name=name, price=data['price'])
         try:
-            ItemModel.insert(item)
+            item.insert()
         except:
             return {'message': 'An error ocurred inserting the item.'}, 500 # internal server error
         return item.json(), 201 # for creating
@@ -54,7 +53,7 @@ class Item(Resource):
         item = ItemModel.find_by_name(name)
         if not item:
             item = ItemModel(0, name=name, price=data['price'])
-            ItemModel.insert(item)
+            item.insert()
             return {'item': item.json()}, 201
         else:
             item._update(data)

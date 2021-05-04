@@ -25,3 +25,14 @@ class UserModel:
         connection.close()
         if user:
             return cls(*user)
+        
+    def insert(self) -> None:
+        # connect to db
+        connection = sqlite3.connect('data.db')
+        cursor = connection.cursor()
+        # insert user
+        query = "INSERT INTO users VALUES (NULL, ?, ?)"
+        cursor.execute(query, (self.username, self.password))
+        # save
+        connection.commit()
+        connection.close()
