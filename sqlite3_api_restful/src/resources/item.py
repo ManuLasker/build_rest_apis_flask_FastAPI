@@ -7,7 +7,6 @@ class Item(Resource):
     """Item Resources, inherit from Resource, this class contains all
     the endpoints for Students
     """
-    TABLE_NAME = 'items'
     parser = reqparse.RequestParser()
     parser.add_argument('price',
                         type = float,
@@ -56,8 +55,7 @@ class Item(Resource):
             item.insert()
             return {'item': item.json()}, 201
         else:
-            item._update(data)
-            ItemModel.update(item)
+            item.update(data)
             return {'updated_item': item.json()}
 
 

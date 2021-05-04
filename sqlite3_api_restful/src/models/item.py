@@ -28,19 +28,17 @@ class ItemModel:
         connection.commit()
         connection.close()
         
-    @classmethod
-    def update(cls, item:'ItemModel') -> None:
+    def update(self, data:dict):
+        for key in data.keys():
+            setattr(self, key, data[key])
+            
         connection = sqlite3.connect('data.db')
         cursor = connection.cursor()
         
         cursor.execute("UPDATE items SET price=? WHERE name=?",
-                       (item.price, item.name))
+                       (self.price, self.name))
         connection.commit()
         connection.close()
-        
-    def _update(self, data:dict):
-        for key in data.keys():
-            setattr(self, key, data[key])
             
     @classmethod
     def delete(cls, name:str) -> None:
