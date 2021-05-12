@@ -10,9 +10,13 @@ class ItemModel(db.Model):
     name = db.Column(db.String(80))
     price = db.Column(db.Float(precision=2))
     
-    def __init__(self, name:str, price:float) -> None:
+    store_id = db.Column(db.Integer, db.ForeignKey('stores.id'))
+    stores = db.relationship('StoreModel')
+    
+    def __init__(self, name:str, price:float, store_id:int) -> None:
         self.name = name
         self.price = price
+        self.store_id = store_id
     
     def json(self) -> Dict:
         return {'name': self.name, 'price': self.price}

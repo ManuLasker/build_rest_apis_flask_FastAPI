@@ -1,7 +1,6 @@
-from typing import Dict
 from flask_restful import Resource, reqparse
 from flask_jwt import jwt_required
-from src.models import ItemModel
+from src.models import ItemModel, StoreModel
 
 class Item(Resource):
     """Item Resources, inherit from Resource, this class contains all
@@ -13,6 +12,10 @@ class Item(Resource):
                         type = float,
                         required = True,
                         help="This field cannot be left blank!")
+    parser.add_argument('store_id',
+                        type = int,
+                        required = True,
+                        help="Every Item needs to have a store id!")
         
     @jwt_required()
     def get(self, name:str):
@@ -30,7 +33,8 @@ class Item(Resource):
         
         # create Item
         data = Item.parser.parse_args()
-        item = ItemModel(name=name, price=data['price'])
+        item = ItemModel(name=name, price=data['price'],
+                         store_id=data['store_id'])
         try:
             item.save_to_db()
         except:
@@ -53,7 +57,8 @@ class Item(Resource):
         data = Item.parser.parse_args()
         item = ItemModel.find_by_name(name)
         if not item:
-            item = ItemModel(name=name, price=data['price'])
+            item = ItemModel(name=name, price=data['price'],
+                             store_id=data['store_id'])
             item.save_to_db()
             return {'item': item.json()}, 201
         else:
