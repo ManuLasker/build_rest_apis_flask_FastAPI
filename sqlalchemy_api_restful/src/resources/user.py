@@ -1,4 +1,3 @@
-import sqlite3
 from flask import request
 from flask_restful import Resource, reqparse
 from werkzeug.security import generate_password_hash
