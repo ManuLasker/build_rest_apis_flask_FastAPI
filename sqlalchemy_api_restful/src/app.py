@@ -1,12 +1,18 @@
-from src.security import authenticate, identity
-from src import create_table
-from src.resources import UserRegister, Item, ItemList
 from flask import Flask
 from flask_restful import Api
 from flask_jwt import JWT
 
+from src.db import db
+from src.resources import UserRegister, Item, ItemList
+from src.security import authenticate, identity
+
 app = Flask(__name__)
 app.secret_key = "manu" # for JWT incription and decription
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False # turn off flask 
+                                                    # sqlalchemy tracker
+# add app to db
+db.init_app(app)
 api = Api(app)
 
 jwt = JWT(app, authenticate, identity) # create a new endpoint /auth -> send username and

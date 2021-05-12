@@ -31,19 +31,20 @@ class Item(Resource):
         
         # create Item
         data = Item.parser.parse_args()
-        item = ItemModel(0, name=name, price=data['price'])
+        item = ItemModel(name=name, price=data['price'])
         try:
-            ItemModel.insert(item)
+            item.save_to_db()
         except:
             return {'message': 'An error ocurred inserting the item.'}, 500 # internal server error
         return item.json(), 201 # for creating
     
     @jwt_required()
     def delete(self, name:str):
-        if not ItemModel.find_by_name(name):
+        item = ItemModel.find_by_name(name)
+        if not item:
             return {'message': f'Item with name {name!r} does not exist!'}, 400 # bad request
         try:
-            ItemModel.delete(name)
+            item.delete_from_db()
             return {'message': f'Item with name {name!r} deleted!'}
         except:
             return {'message': f'Internal error deleting item'}, 500
@@ -53,12 +54,12 @@ class Item(Resource):
         data = Item.parser.parse_args()
         item = ItemModel.find_by_name(name)
         if not item:
-            item = ItemModel(0, name=name, price=data['price'])
-            ItemModel.insert(item)
+            item = ItemModel(name=name, price=data['price'])
+            item.save_to_db()
             return {'item': item.json()}, 201
         else:
             item._update(data)
-            ItemModel.update(item)
+            item.save_to_db()
             return {'updated_item': item.json()}
 
 

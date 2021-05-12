@@ -1,27 +1,32 @@
 import sqlite3
+from src.db import db
 
-class UserModel:
-    def __init__(self, _id:int, username:str, password:str) -> None:
-        self.id = _id
+class UserModel(db.Model):
+    # extends the db Model to tell sqlalchmy this is the model
+    __tablename__ = 'users'
+    
+    # specify the columns
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80))
+    password = db.Column(db.String(80))
+    
+    def __init__(self, username:str, password:str) -> None:
         self.username = username
         self.password = password
     
     @classmethod
     def find_by_username(cls, username: str) -> 'UserModel':
-        connection = sqlite3.connect('data.db')
-        cursor = connection.cursor()
-        query = "SELECT * FROM users WHERE username=?"
-        user = cursor.execute(query, (username,)).fetchone() # get the fetch row
-        connection.close()
-        if user:
-            return cls(*user)
+        return UserModel.query.filter_by(username=username).first()
         
     @classmethod
-    def find_by_id(cls, _id: str) -> 'UserModel':
-        connection = sqlite3.connect('data.db')
-        cursor = connection.cursor()
-        query = "SELECT * FROM users WHERE id=?"
-        user = cursor.execute(query, (_id,)).fetchone() # get the fetch row
-        connection.close()
-        if user:
-            return cls(*user)
+    def find_by_id(cls, _id: int) -> 'UserModel':
+        return UserModel.query.filter_by(id=_id).first()
+    
+    def save_to_db(self) -> None:
+        """Save user to database.
+        """
+        db.session.add(self) # add a user
+        db.session.commit() # save the user
+        
+    def __str__(self):
+        return f'User(id={self.id}, username={self.username})'

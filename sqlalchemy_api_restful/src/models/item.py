@@ -1,9 +1,17 @@
 import sqlite3
 from typing import Dict, List
+from src.db import db
 
-class ItemModel:
-    def __init__(self, _id:int, name:str, price:float) -> None:
-        self.id = _id
+class ItemModel(db.Model):
+    # extends the db Model to tell sqlalchmy this is the model
+    __tablename__ = 'items'
+    
+    # specify the columns
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80))
+    price = db.Column(db.Float(precision=2))
+    
+    def __init__(self, name:str, price:float) -> None:
         self.name = name
         self.price = price
     
@@ -12,53 +20,33 @@ class ItemModel:
     
     @classmethod
     def find_by_name(cls, name:str) -> 'ItemModel':
-        connection = sqlite3.connect('data.db')
-        cursor = connection.cursor()
-        item = cursor.execute("SELECT * FROM items WHERE name=?",
-                              (name, )).fetchone()
-        connection.close()
-        if item:
-            return cls(*item)
+        """Return Item from database whith specific name
+        Returns:
+            [ItemModel]: item object with id, name and price
+        """
+        # SELECT * FROM items WHERE name=name LIMIT 1
+        return cls.query.filter_by(name=name).first()
         
-    @classmethod
-    def insert(cls, item:'ItemModel') -> None:
-        connection = sqlite3.connect('data.db')
-        cursor = connection.cursor()
-        cursor.execute("INSERT INTO items VALUES (NULL, ?, ?)",
-                       (item.name, item.price))
-        connection.commit()
-        connection.close()
+    def save_to_db(self) -> None:
+        """Insert or Update Object into database.
+        """
+        db.session.add(self)
+        db.session.commit() # save to database
         
-    @classmethod
-    def update(cls, item:'ItemModel') -> None:
-        connection = sqlite3.connect('data.db')
-        cursor = connection.cursor()
+    def delete_from_db(self) -> None:
+        """Delete item object from database.
+        """
+        db.session.delete(self)
+        db.session.commit()
         
-        cursor.execute("UPDATE items SET price=? WHERE name=?",
-                       (item.price, item.name))
-        connection.commit()
-        connection.close()
-        
-    def _update(self, data:dict):
-        for key in data.keys():
-            setattr(self, key, data[key])
-            
-    @classmethod
-    def delete(cls, name:str) -> None:
-        connection = sqlite3.connect('data.db')
-        cursor = connection.cursor()
-        
-        cursor.execute("DELETE FROM items WHERE name=?", (name, ))
-        
-        connection.commit()
-        connection.close()
+    def _update(self, data:dict) -> None:
+        """Update item object from data's information dict.
+        Args:
+            data (dict): information to update in item object.
+        """
+        for key, value in data.items():
+            setattr(self, key, value)
         
     @classmethod
     def get_all_items(cls) -> List['ItemModel']:
-        connection = sqlite3.connect('data.db')
-        cursor = connection.cursor()
-        items = [cls(*item) 
-                for item in cursor.execute("SELECT * FROM items").fetchall()]
-        connection.close()
-        return items
-        
+        return cls.query.all()
