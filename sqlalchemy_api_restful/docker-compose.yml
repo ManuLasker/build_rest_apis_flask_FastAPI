@@ -1,0 +1,15 @@
+
+services:
+    web:
+        image: manu/flask-rest-api
+        build: .
+        ports: 
+            - 5000:8080
+        entrypoint: 
+            - uwsgi
+            - uwsgi.ini
+        networks:
+            - web-network
+
+networks:
+    web-network:

@@ -22,3 +22,4 @@ SQLAlchemy==1.4.13
 toml==0.10.2
 Werkzeug==1.0.1
 wrapt==1.12.1
+uwsgi==2.0.19.1
