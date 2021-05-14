@@ -1,3 +1,4 @@
+from typing import Dict
 from src.db import db
 
 class UserModel(db.Model):
@@ -21,11 +22,18 @@ class UserModel(db.Model):
     def find_by_id(cls, _id: int) -> 'UserModel':
         return UserModel.query.filter_by(id=_id).first()
     
+    def json(self) -> Dict:
+        return {'id': self.id, 'name': self.username}
+    
     def save_to_db(self) -> None:
         """Save user to database.
         """
         db.session.add(self) # add a user
         db.session.commit() # save the user
+        
+    def delete_from_db(self) -> None:
+        db.session.delete(self)
+        db.session.commit()
         
     def __str__(self):
         return f'User(id={self.id}, username={self.username})'

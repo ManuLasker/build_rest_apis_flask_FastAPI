@@ -1,6 +1,6 @@
 from flask_restful import Resource, reqparse
-from flask_jwt import jwt_required
-from src.models import ItemModel, StoreModel
+from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity
+from src.models import ItemModel
 
 class Item(Resource):
     """Item Resources, inherit from Resource, this class contains all
@@ -26,6 +26,7 @@ class Item(Resource):
         else:
             return  {'message': f'Item with name {name!r} not found!'}, status_code
     
+    @jwt_required(fresh=True)
     def post(self, name:str):
         if ItemModel.find_by_name(name):
             # already exist
@@ -43,7 +44,13 @@ class Item(Resource):
     
     @jwt_required()
     def delete(self, name:str):
+        claims:dict = get_jwt()
         item = ItemModel.find_by_name(name)
+        if not claims.get('is_admin', False):
+            return {
+                'message': 'Admin privileges are required.'
+            }
+            
         if not item:
             return {'message': f'Item with name {name!r} does not exist!'}, 400 # bad request
         try:
@@ -69,6 +76,11 @@ class Item(Resource):
 
 class ItemList(Resource):
     """ItemList Resorce, for items"""
+    @jwt_required(optional=True) # jwt is optional
     def get(self):
+        user_id = get_jwt_identity() # None or user_id
         items = [item.json() for item in ItemModel.get_all_items()]
-        return {'items': items}
+        if not user_id: # not jwt identity
+            return {'items': [item['name'] for item in items],
+                    'message': 'more data available if you log in'}, 200
+        return {'items': items}, 200

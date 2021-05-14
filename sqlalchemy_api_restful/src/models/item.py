@@ -11,7 +11,7 @@ class ItemModel(db.Model):
     price = db.Column(db.Float(precision=2))
     
     store_id = db.Column(db.Integer, db.ForeignKey('stores.id'))
-    stores = db.relationship('StoreModel')
+    store = db.relationship('StoreModel')
     
     def __init__(self, name:str, price:float, store_id:int) -> None:
         self.name = name
@@ -19,7 +19,8 @@ class ItemModel(db.Model):
         self.store_id = store_id
     
     def json(self) -> Dict:
-        return {'name': self.name, 'price': self.price}
+        return {'id': self.id, 'name': self.name,
+                'price': self.price, 'store_id': self.store_id}
     
     @classmethod
     def find_by_name(cls, name:str) -> 'ItemModel':
