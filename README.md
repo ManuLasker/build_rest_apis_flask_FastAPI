@@ -14,4 +14,4 @@ Learned Frameworks:
 
 The full dockerized api is located in `sqlalchemy_api_restful` folder. To run this api you need to install docker and docker-compose then execute docker-compose inside the folder specified.
 
-`docker-compose up --build` this command will build the docker container and run the api using **uWSGI**.
+`docker-compose up --build`: this command will build the docker container and run the api using **uWSGI** framework.
