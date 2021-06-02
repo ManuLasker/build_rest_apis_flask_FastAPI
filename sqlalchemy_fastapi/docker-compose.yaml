@@ -1,0 +1,23 @@
+
+services:
+    web:
+        build: .
+        volumes:
+            - type: bind
+              source: .
+              target: /opt/app/
+        ports:
+            - 8080:8080
+        entrypoint:
+            - uvicorn
+            - --port
+            - "8080"
+            - --host
+            - "0.0.0.0"
+            - --reload
+            - src:app
+        networks:
+            - web_network
+
+networks:
+    web_network:
