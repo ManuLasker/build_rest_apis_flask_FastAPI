@@ -8,4 +8,3 @@ ARG WORKDIR=/opt/app
 WORKDIR ${WORKDIR}
 
 # COPY src ${WORKDIR}/src
-# COPY templates ${WORKDIR}/templates

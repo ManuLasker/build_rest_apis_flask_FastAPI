@@ -1,16 +1,15 @@
 from fastapi import FastAPI
-from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
-from fastapi.requests import Request
-
+from starlette.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="RestFul API course",
-              description="Api for stores, items and users created for learning purposes")
+              description="Api for stores, items and users"
+              " created for learning purposes")
 
-templates = Jinja2Templates("templates")
-
-
-@app.get("/", response_class=HTMLResponse)
-def index(request:Request):
-    print(vars(request))
-    return templates.TemplateResponse("index.html", context={"request": request})
+# Set all CORS enabled origins
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
