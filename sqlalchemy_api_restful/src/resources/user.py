@@ -15,7 +15,7 @@ class UserRegister(Resource):
     def post(self):
         data = _user_parser.parse_args()
         if UserModel.find_by_username(data['username']):
-            return {'message': f'User with username {data["user_name"]!r} already exist!'}, 400
+            return {'message': f'User with username {data["username"]!r} already exist!'}, 400
         # create user
         user = UserModel(data['username'],
                          generate_password_hash(data['password']))
