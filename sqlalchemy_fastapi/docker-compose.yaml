@@ -2,19 +2,16 @@
 services:
     web:
         build: .
-        volumes:
-            - type: bind
-              source: .
-              target: /opt/app/
         ports:
             - 5000:5000
-        entrypoint:
-            - uvicorn
-            - --port
-            - "5000"
-            - --host
-            - "0.0.0.0"
-            - --reload
+        entrypoint: 
+            - gunicorn
+            - -b
+            - "0.0.0.0:5000"
+            - -w
+            - "1"
+            - -k
+            - "uvicorn.workers.UvicornWorker"
             - wsgi:app
         env_file: 
             - file.env
