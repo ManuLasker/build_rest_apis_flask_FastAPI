@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel
 
 class UserBase(BaseModel):
@@ -17,6 +18,9 @@ class UserInDBBase(UserBase):
         
 class User(UserInDBBase): 
     pass
+
+class UserPermission(BaseModel):
+    is_admin = True
 
 class UserInDB(UserInDBBase):
     password: str
