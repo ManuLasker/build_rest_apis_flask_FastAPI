@@ -1,12 +1,13 @@
+from typing import Tuple
 from fastapi import APIRouter, HTTPException, Depends, Security
 from sqlalchemy.orm import Session
 from src.crud.crud_user import user
-from src.schemas.user import User, UserCreate
+from src.schemas.user import User, UserCreate, UserPermission
 from src.schemas.msg import Msg
-from src.schemas.token import Token, TokenDecode
-from src.api.deps import get_db, security_bearer, current_user, get_jwt
-from src.core.security import verify_password, create_tokens
-from fastapi.security import OAuth2PasswordRequestForm, HTTPAuthorizationCredentials
+from src.schemas.token import Token, TokenDecode, TokenBase
+from src.api.deps import get_db, current_user, get_jwt
+from src.core.security import verify_password, create_tokens, create_access_token
+from fastapi.security import OAuth2PasswordRequestForm
 from src.blacklist import BLACKLIST
 from functools import partial
 
@@ -70,17 +71,24 @@ class UserAuthenticationRouter:
 class UserRefresherRouter:
     router = APIRouter()
 
-    @router.post("/refresh")
-    def refresh(credentials: HTTPAuthorizationCredentials = Security(security_bearer)):
-        print(credentials)
-        return {"hola": "mundo"}
+    @router.post("/refresh", response_model=TokenBase)
+    def refresh(
+        user_with_permission: Tuple[User, UserPermission] = Depends(
+            partial(current_user, "refresh")
+        )
+    ):
+        current_user, user_permission = user_with_permission
+        new_token = create_access_token(
+            current_user.id, additional_claims=user_permission.dict()
+        )
+        return {"access_token": new_token}
+
 
 class UserLogoutRouter:
     router = APIRouter()
 
     @router.post("/logout")
-    def logout(jwt_payload: TokenDecode= Depends(partial(get_jwt, "access"))):
+    def logout(jwt_payload: TokenDecode = Depends(partial(get_jwt, "access"))):
         jti = jwt_payload.jti
         BLACKLIST.add(jti)
         return {"message": "succesfully logged out!"}
-    
