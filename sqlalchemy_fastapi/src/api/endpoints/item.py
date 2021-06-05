@@ -1,9 +1,11 @@
+from functools import partial
+from src.schemas.token import TokenDecode
 from typing import Dict, List, Optional
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm.session import Session
 from src.crud.crud_item import item
 from src.schemas.item import ItemCreate, Item, ItemUpdate
-from src.api.deps import get_db
+from src.api.deps import get_db, get_jwt
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 
@@ -12,7 +14,11 @@ class ItemRouter:
     router = APIRouter()
 
     @router.get("/{name}", response_model=Item)
-    def get(name: str, db: Session = Depends(get_db)):
+    def get(
+        name: str,
+        db: Session = Depends(get_db),
+        jwt_payload: TokenDecode = Depends(partial(get_jwt, "access")),
+    ):
         db_item = item.get_by_name(db, name)
         if db_item:
             return db_item
@@ -21,7 +27,12 @@ class ItemRouter:
         )
 
     @router.post("/{name}", response_model=Item)
-    def post(name: str, new_item: ItemCreate, db: Session = Depends(get_db)):
+    def post(
+        name: str,
+        new_item: ItemCreate,
+        db: Session = Depends(get_db),
+        jwt_payload: TokenDecode = Depends(partial(get_jwt, "access")),
+    ):
         if item.get_by_name(db, name):
             raise HTTPException(
                 status_code=400,
@@ -31,7 +42,12 @@ class ItemRouter:
         return db_item
 
     @router.put("/{name}", response_model=Item)
-    def put(name: str, updated_item: ItemUpdate, db: Session = Depends(get_db)):
+    def put(
+        name: str,
+        updated_item: ItemUpdate,
+        db: Session = Depends(get_db),
+        jwt_payload: TokenDecode = Depends(partial(get_jwt, "access")),
+    ):
         db_item = item.get_by_name(db, name)
         if db_item:
             return item.update(db, db_item, updated_item)
@@ -39,7 +55,11 @@ class ItemRouter:
         return db_item
 
     @router.delete("/{name}", response_model=Item)
-    def delete(name: str, db: Session = Depends(get_db)):
+    def delete(
+        name: str,
+        db: Session = Depends(get_db),
+        jwt_payload: TokenDecode = Depends(partial(get_jwt, "access")),
+    ):
         db_item = item.get_by_name(db, name)
         if db_item:
             return item.delete_from_db(db, db_item)
